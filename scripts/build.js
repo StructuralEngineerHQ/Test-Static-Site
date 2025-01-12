@@ -26,8 +26,15 @@ async function buildPage(template, markdownPath, outputPath) {
     let page = template.replace('{{title}}', attributes.title || 'Untitled');
     page = page.replace('{{content}}', html);
     
-    await fs.mkdir(path.dirname(outputPath), { recursive: true });
-    await fs.writeFile(outputPath, page);
+    // Create a directory for each page (except index/home)
+    const filename = path.basename(outputPath, '.html');
+    const outputDir = filename === 'index' 
+        ? path.dirname(outputPath)
+        : path.join(path.dirname(outputPath), filename);
+    
+    // Create the directory and write index.html inside it
+    await fs.mkdir(outputDir, { recursive: true });
+    await fs.writeFile(path.join(outputDir, 'index.html'), page);
 }
 
 async function copyStaticAssets() {
